@@ -1,3 +1,6 @@
+/* ───────────────────────────────────────────────
+   Book creation form
+   ───────────────────────────────────────────── */
 .create-book-form {
   background: var(--paper-white);
   padding: var(--spacing-xl);
@@ -31,46 +34,60 @@
 }
 
 .form-error-box {
-  background: #FFEBEE;
-  color: #C62828;
+  background: #ffebee;
+  color: #c62828;
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
-  border-left: 4px solid #C62828;
+  border-left: 4px solid #c62828;
   margin-bottom: var(--spacing-lg);
   font-size: 0.9rem;
 }
 
-/* Books list styles */
+/* ───────────────────────────────────────────────
+   Community books listing
+   ───────────────────────────────────────────── */
 .books-container {
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 0;
 }
 
+/* Header section containing H1, search bar and button */
 .books-header {
   display: flex;
-  justify-content: between;
   align-items: center;
-  margin-bottom: var(--spacing-xl);
   flex-wrap: wrap;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
 }
 
+/* Optional “Add book” button inside list pages */
 .add-book-btn {
   white-space: nowrap;
 }
 
+/* Grid wrapper */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+/* ───────────────────────────────────────────────
+   Individual card
+   ───────────────────────────────────────────── */
 .book-card {
   background: var(--paper-white);
   padding: var(--spacing-lg);
   border-radius: var(--radius-md);
   border: 1px solid var(--light-brown);
-  margin-bottom: var(--spacing-md);
-  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .book-card:hover {
-  box-shadow: 0 4px 12px var(--shadow-medium);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px var(--shadow-medium);
 }
 
 .book-title {
@@ -94,7 +111,43 @@
   margin-bottom: var(--spacing-sm);
 }
 
+.book-genre {
+  background: var(--parchment);
+  border: 1px solid var(--light-brown);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  color: var(--primary-brown);
+  display: inline-block;
+  margin-top: var(--spacing-xs);
+}
+
 .book-description {
   color: var(--text-light);
   line-height: 1.6;
+}
+
+/* ───────────────────────────────────────────────
+   Responsive tweaks
+   ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .books-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+button[type="button"][style*="font-size"] {
+  line-height: 1;
+}
+
+.review-actions button {
+  background: none;
+  border: none;
+  color: var(--primary-brown);
+  cursor: pointer;
+  margin-left: .5rem;
+}
+.review-actions button:hover {
+  text-decoration: underline;
 }
