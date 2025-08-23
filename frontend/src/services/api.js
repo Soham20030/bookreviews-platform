@@ -34,11 +34,22 @@ class ApiService {
   /* -------------------------------------------------- books */
   createBook(body) { return this.request('/books', { method: 'POST', body: JSON.stringify(body) }); }
 
-  getAllBooks({ search = '', limit = 20, page = 1 } = {}) {
-    const offset = (page - 1) * limit;
-    const params = new URLSearchParams({ search, limit, offset });
-    return this.request(`/books?${params.toString()}`);
-  }
+getAllBooks({ search = '', genre = '', minRating = '', maxRating = '', sortBy = 'newest', limit = 20, page = 1 } = {}) {
+  const offset = (page - 1) * limit;
+  
+  // Build query parameters properly
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (genre) params.append('genre', genre);
+  if (minRating) params.append('minRating', minRating);
+  if (maxRating) params.append('maxRating', maxRating);
+  if (sortBy) params.append('sortBy', sortBy);
+  params.append('limit', limit);
+  params.append('offset', offset);
+
+  console.log('🌐 API call URL:', `/books?${params.toString()}`); // Debug log
+  return this.request(`/books?${params.toString()}`);
+}
 
   getBookById(id) { return this.request(`/books/${id}`); }
 

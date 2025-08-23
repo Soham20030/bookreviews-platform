@@ -1,0 +1,221 @@
+/* ═══════════════════════════════════════════════════════════════
+   Search & Filter Component Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+.search-filter-container {
+  background: var(--paper-white);
+  border: 1px solid var(--light-brown);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: 0 2px 8px var(--shadow-light);
+}
+
+/* ───────────────────── Main Search Bar ───────────────────── */
+.search-bar-section {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  padding-right: 3rem;
+  border: 2px solid var(--light-brown);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-brown);
+  box-shadow: 0 0 0 3px var(--parchment);
+}
+
+.search-icon {
+  position: absolute;
+  right: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+}
+
+.advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.arrow {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.arrow.up {
+  transform: rotate(180deg);
+}
+
+/* ───────────────────── Advanced Filters ───────────────────── */
+.advanced-filters {
+  border-top: 1px solid var(--light-brown);
+  padding-top: var(--spacing-md);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: var(--dark-brown);
+  font-size: 0.9rem;
+}
+
+.filter-select {
+  padding: 0.5rem;
+  border: 1px solid var(--light-brown);
+  border-radius: var(--radius-sm);
+  background: var(--paper-white);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary-brown);
+}
+
+.filter-select.small {
+  flex: 1;
+  min-width: 80px;
+}
+
+/* ───────────────────── Rating Range ───────────────────── */
+.rating-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.range-separator {
+  color: var(--text-light);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* ───────────────────── Filter Actions ───────────────────── */
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--parchment);
+}
+
+.clear-filters {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+/* ───────────────────── Results Summary ───────────────────── */
+.results-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: var(--spacing-sm);
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.active-filters-indicator {
+  color: var(--primary-brown);
+  font-weight: 500;
+}
+
+/* ───────────────────── Loading & No Results ───────────────────── */
+.loading-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-light);
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--text-light);
+}
+
+.no-results h3 {
+  color: var(--dark-brown);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ───────────────────── Responsive Design ───────────────────── */
+@media (max-width: 768px) {
+  .search-bar-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input-wrapper {
+    max-width: none;
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .rating-range {
+    flex-wrap: wrap;
+  }
+}
+
+/* ───────────────────── Book Card Enhancements ───────────────────── */
+.book-footer {
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--parchment);
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.book-description {
+  flex-grow: 1;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}

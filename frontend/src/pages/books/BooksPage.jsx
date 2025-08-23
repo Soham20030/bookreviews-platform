@@ -1,69 +1,138 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import apiService from '../../services/api';
-import BookCard from '../../components/books/BookCard';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import BookSearchFilter from '../../components/books/BookSearchFilter';
 import '../../components/books.css';
+import '../../components/search-filter.css';
 
 const BooksPage = () => {
+  const { user } = useAuth();
   const [books, setBooks] = useState([]);
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const limit = 20;
-  const navigate = useNavigate();
+  const [genres, setGenres] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  // Memoized callback to prevent infinite re-renders
+ // In BooksPage.jsx - update handleFiltersChange
+const handleFiltersChange = useCallback(async (filters) => {
+  console.log('🔍 Applying filters:', filters); // Add this
+  setLoading(true);
+  try {
+    const response = await api.getAllBooks({
+      search: filters.search,
+      genre: filters.genre,
+      minRating: filters.minRating,
+      maxRating: filters.maxRating,
+      sortBy: filters.sortBy,
+      limit: 50,
+      page: 1
+    });
+    
+    console.log('📚 API response:', response); // Add this
+    setBooks(response.books || []);
+    if (response.genres) {
+      setGenres(response.genres);
+    }
+  } catch (err) {
+    console.error('❌ Filter error:', err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
+
+  // Initial load
   useEffect(() => {
-    (async () => {
-      const res = await apiService.getAllBooks({ search, limit, page });
-      setBooks(res.books);
-      setTotal(res.total);
-    })();
-  }, [search, page]);
+    handleFiltersChange({
+      search: '',
+      genre: '',
+      minRating: '',
+      maxRating: '',
+      sortBy: 'newest'
+    });
+  }, [handleFiltersChange]);
 
-  const totalPages = Math.ceil(total / limit) || 1;
+  if (error) {
+    return (
+      <div className="page-container">
+        <p style={{ color: 'red', textAlign: 'center', padding: '2rem' }}>
+          Error: {error}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
-      <header style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-        <h1 style={{ margin: 0, fontSize: '1.8rem' }}>Community Books</h1>
-
-        <input
-          className="form-input"
-          style={{ maxWidth: '260px' }}
-          value={search}
-          onChange={e => { setPage(1); setSearch(e.target.value); }}
-          placeholder="Search title or author"
-        />
-
-        <button className="btn btn-secondary" onClick={() => navigate('/')}>
-          Back to Dashboard
-        </button>
-      </header>
-
-      {books.length === 0 && <p>No books found.</p>}
-
-      <div className="books-grid">
-        {books.map(b => <BookCard key={b.id} book={b} />)}
+      {/* Header */}
+      <div className="books-header">
+        <div>
+          <h1>Community Books</h1>
+          <p style={{ color: 'var(--text-light)', margin: 0 }}>
+            Discover and share amazing books with the community
+          </p>
+        </div>
+        
+        <Link to="/" className="btn btn-secondary">
+          ← Back to Dashboard
+        </Link>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-          <button
-            className="btn btn-secondary"
-            disabled={page === 1}
-            onClick={() => setPage(p => p - 1)}
-          >Previous</button>
+      {/* Search & Filters */}
+      <BookSearchFilter
+        onFiltersChange={handleFiltersChange}
+        genres={genres}
+        totalResults={books.length}
+      />
 
-          <span style={{ alignSelf: 'center' }}>
-            Page {page} / {totalPages}
-          </span>
+      {/* Loading State */}
+      {loading && (
+        <div className="loading-state">
+          <p>Searching books...</p>
+        </div>
+      )}
 
-          <button
-            className="btn btn-secondary"
-            disabled={page === totalPages}
-            onClick={() => setPage(p => p + 1)}
-          >Next</button>
+      {/* Books Grid */}
+      {!loading && (
+        <div className="books-grid">
+          {books.length === 0 ? (
+            <div className="no-results">
+              <h3>No books found</h3>
+              <p>Try adjusting your search criteria or add a new book to get started!</p>
+            </div>
+          ) : (
+            books.map(book => (
+              <Link key={book.id} to={`/books/${book.id}`} className="book-card">
+                <h3 className="book-title">{book.title}</h3>
+                {book.author && <p className="book-author">by {book.author}</p>}
+                
+                <div className="book-meta">
+                  <span>{book.review_count || 0} reviews</span>
+                  {book.average_rating && (
+                    <span>★ {book.average_rating}</span>
+                  )}
+                  {book.genre && (
+                    <span className="book-genre">{book.genre}</span>
+                  )}
+                </div>
+
+                {book.description && (
+                  <p className="book-description">
+                    {book.description.length > 150
+                      ? `${book.description.substring(0, 150)}...`
+                      : book.description
+                    }
+                  </p>
+                )}
+
+                <div className="book-footer">
+                  <small>Added by {book.created_by_username}</small>
+                </div>
+              </Link>
+            ))
+          )}
         </div>
       )}
     </div>

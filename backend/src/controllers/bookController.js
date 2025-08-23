@@ -50,45 +50,130 @@ export const createBook = async (req, res) => {
  * ───────────────────────────────────────── */
 export const getAllBooks = async (req, res) => {
   try {
-    const { search, limit = 20, offset = 0 } = req.query;
+    console.log('📋 Query params received:', req.query);
+    const {
+      search = '',
+      genre = '',
+      minRating = '',
+      maxRating = '',
+      sortBy = 'newest',
+      limit = 20,
+      offset = 0
+    } = req.query;
 
     let sql = `
       SELECT b.*,
              u.username AS created_by_username,
-             COUNT(r.id)            AS review_count,
-             ROUND(AVG(r.rating),1) AS average_rating
+             COUNT(r.id)::INTEGER AS review_count,
+             ROUND(AVG(r.rating), 1) AS average_rating
         FROM books b
    LEFT JOIN users   u ON b.created_by = u.id
    LEFT JOIN reviews r ON b.id = r.book_id
     `;
+    
+    const conditions = [];
     const params = [];
+    let paramCount = 0;
 
+    // Text search across title, author, description
     if (search) {
-      sql += `
-        WHERE to_tsvector(
-                'english',
-                b.title || ' ' || COALESCE(b.author,'') || ' ' || COALESCE(b.description,'')
-              ) @@ plainto_tsquery('english', $1)
-      `;
-      params.push(search);
+      paramCount++;
+      conditions.push(`
+        (LOWER(b.title) LIKE LOWER($${paramCount}) OR
+         LOWER(COALESCE(b.author, '')) LIKE LOWER($${paramCount}) OR
+         LOWER(COALESCE(b.description, '')) LIKE LOWER($${paramCount}))
+      `);
+      params.push(`%${search}%`);
     }
 
-    sql += `
-      GROUP BY b.id, u.username
-      ORDER BY b.created_at DESC
-      LIMIT $${params.length + 1}
-      OFFSET $${params.length + 2}
-    `;
-    params.push(limit, offset);
+    // Genre filter
+    if (genre) {
+      paramCount++;
+      conditions.push(`LOWER(b.genre) = LOWER($${paramCount})`);
+      params.push(genre);
+    }
+
+    // Rating range filter (needs subquery since we're grouping)
+    if (minRating || maxRating) {
+      const ratingConditions = [];
+      if (minRating) {
+        paramCount++;
+        ratingConditions.push(`AVG(r.rating) >= $${paramCount}`);
+        params.push(parseFloat(minRating));
+      }
+      if (maxRating) {
+        paramCount++;
+        ratingConditions.push(`AVG(r.rating) <= $${paramCount}`);
+        params.push(parseFloat(maxRating));
+      }
+      // We'll handle this in HAVING clause after GROUP BY
+    }
+
+    // Add WHERE clause if we have conditions
+    if (conditions.length > 0) {
+      sql += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    sql += ` GROUP BY b.id, u.username`;
+
+    // Add HAVING for rating filters
+    if (minRating || maxRating) {
+      const havingConditions = [];
+      if (minRating) havingConditions.push(`AVG(r.rating) >= ${parseFloat(minRating)}`);
+      if (maxRating) havingConditions.push(`AVG(r.rating) <= ${parseFloat(maxRating)}`);
+      sql += ` HAVING ${havingConditions.join(' AND ')}`;
+    }
+
+    // Sort options
+    switch (sortBy) {
+      case 'title':
+        sql += ` ORDER BY b.title ASC`;
+        break;
+      case 'author':
+        sql += ` ORDER BY b.author ASC`;
+        break;
+      case 'rating':
+        sql += ` ORDER BY average_rating DESC NULLS LAST`;
+        break;
+      case 'popular':
+        sql += ` ORDER BY review_count DESC`;
+        break;
+      case 'oldest':
+        sql += ` ORDER BY b.created_at ASC`;
+        break;
+      default: // newest
+        sql += ` ORDER BY b.created_at DESC`;
+    }
+
+    paramCount++;
+    sql += ` LIMIT $${paramCount}`;
+    params.push(parseInt(limit));
+
+    paramCount++;
+    sql += ` OFFSET $${paramCount}`;
+    params.push(parseInt(offset));
 
     const { rows } = await pool.query(sql, params);
 
-    return res.json({ books: rows, total: rows.length });
+    // Get unique genres for filter dropdown
+    const genresResult = await pool.query(`
+      SELECT DISTINCT genre 
+      FROM books 
+      WHERE genre IS NOT NULL AND genre != '' 
+      ORDER BY genre ASC
+    `);
+
+    return res.json({
+      books: rows,
+      total: rows.length,
+      genres: genresResult.rows.map(row => row.genre)
+    });
   } catch (err) {
     console.error('Get books error:', err);
     return res.status(500).json({ message: 'Server error while fetching books' });
   }
 };
+
 
 /* ─────────────────────────────────────────
  *  GET /api/books/:id
