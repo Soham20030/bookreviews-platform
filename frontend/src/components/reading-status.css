@@ -1,0 +1,206 @@
+/* ═══════════════════════════════════════════════════════════════
+   Reading Status Component Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ───────────────────── Status Button ───────────────────── */
+.reading-status-container {
+  position: relative;
+  display: inline-block;
+}
+
+.reading-status-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 2px solid var(--light-brown);
+  border-radius: var(--radius-md);
+  background: var(--paper-white);
+  color: var(--dark-brown);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.reading-status-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow-light);
+}
+
+.reading-status-btn.has-status {
+  background: var(--parchment);
+}
+
+.dropdown-arrow {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.reading-status-btn:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* ───────────────────── Dropdown ───────────────────── */
+.reading-status-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--paper-white);
+  border: 2px solid var(--light-brown);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px var(--shadow-medium);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-option {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: none;
+  background: var(--paper-white);
+  color: var(--dark-brown);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.status-option:hover {
+  background: var(--parchment);
+}
+
+.status-option.active {
+  background: var(--light-brown);
+  font-weight: 600;
+}
+
+.status-option.remove {
+  color: #e74c3c;
+  border-top: 1px solid var(--light-brown);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--light-brown);
+}
+
+/* ───────────────────── Library Page ───────────────────── */
+.library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.library-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--light-brown);
+  margin-bottom: var(--spacing-xl);
+  overflow-x: auto;
+}
+
+.library-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  background: none;
+  color: var(--text-light);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.library-tab:hover {
+  color: var(--dark-brown);
+  background: var(--parchment);
+}
+
+.library-tab.active {
+  color: var(--dark-brown);
+  font-weight: 600;
+}
+
+.tab-count {
+  background: var(--light-brown);
+  color: var(--dark-brown);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.library-content {
+  min-height: 400px;
+}
+
+.empty-library {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--text-light);
+}
+
+.empty-library h3 {
+  color: var(--dark-brown);
+  margin-bottom: var(--spacing-sm);
+}
+
+.library-book-footer {
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--parchment);
+  font-size: 0.8rem;
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* ───────────────────── Login Prompt ───────────────────── */
+.reading-status-login {
+  padding: var(--spacing-md);
+  background: var(--parchment);
+  border: 1px solid var(--light-brown);
+  border-radius: var(--radius-md);
+  text-align: center;
+  color: var(--text-light);
+}
+
+/* ───────────────────── Responsive ───────────────────── */
+@media (max-width: 768px) {
+  .library-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .library-tabs {
+    flex-wrap: nowrap;
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .reading-status-btn {
+    min-width: 160px;
+    font-size: 0.9rem;
+  }
+}

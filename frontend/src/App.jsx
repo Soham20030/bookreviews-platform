@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import CreateBookForm from './components/books/CreateBookForm';
+import MyLibrary from './pages/library/MyLibrary';
+
 
 /* NOTE: pages are under pages/books/ */
 import BooksPage from './pages/books/BooksPage';
@@ -123,6 +125,9 @@ function App() {
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
+        {/* Library */}
+        <Route path="/library" element={<MyLibrary />} />
       </Routes>
     </AuthProvider>
   );

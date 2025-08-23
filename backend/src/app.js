@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/authRoutes.js';
 import bookRoutes from './routes/bookRoutes.js';
+import readingStatusRoutes from './routes/readingStatusRoutes.js';
 
 const app = express();
 
@@ -40,7 +41,7 @@ if (process.env.NODE_ENV !== 'production') {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
-
+app.use('/api/reading-status', readingStatusRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

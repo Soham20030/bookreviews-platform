@@ -2,16 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../services/api';
 import ReviewForm from '../../components/reviews/ReviewForm';
+import ReadingStatusButton from '../../components/books/ReadingStatusButton';
 import { useAuth } from '../../context/AuthContext';
 import '../../components/books.css';
+import '../../components/reading-status.css';
 
 const BookDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
 
-  const [book, setBook]       = useState(null);
+  const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   /* ───────── load once ───────── */
   useEffect(() => {
@@ -29,7 +31,7 @@ const BookDetail = () => {
   /* ───────── helpers ───────── */
   const recalcStats = (list) => {
     const count = list.length;
-    const avg   = count ? (list.reduce((s, r) => s + r.rating, 0) / count).toFixed(1) : null;
+    const avg = count ? (list.reduce((s, r) => s + r.rating, 0) / count).toFixed(1) : null;
     setBook(b => ({ ...b, review_count: count, average_rating: avg }));
   };
 
@@ -62,9 +64,14 @@ const BookDetail = () => {
     });
   };
 
+  const handleStatusChange = (status) => {
+    console.log('Reading status updated:', status);
+    // Optionally show a notification or update UI
+  };
+
   /* ───────── rendering ───────── */
-  if (error)   return <p style={{ padding: '2rem' }}>{error}</p>;
-  if (!book)   return <p style={{ padding: '2rem' }}>Loading…</p>;
+  if (error) return <p style={{ padding: '2rem' }}>{error}</p>;
+  if (!book) return <p style={{ padding: '2rem' }}>Loading…</p>;
 
   return (
     <div className="page-container">
@@ -82,6 +89,14 @@ const BookDetail = () => {
       {book.description && (
         <p style={{ maxWidth: '700px', lineHeight: 1.6 }}>{book.description}</p>
       )}
+
+      {/* ───────── Reading Status Button ───────── */}
+      <div style={{ margin: '2rem 0' }}>
+        <ReadingStatusButton 
+          bookId={book.id} 
+          onStatusChange={handleStatusChange}
+        />
+      </div>
 
       {/* ───────── new-review form ───────── */}
       <div style={{ marginTop: '2rem' }}>
