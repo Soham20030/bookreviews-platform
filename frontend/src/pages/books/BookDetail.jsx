@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../../services/api';
 import ReviewForm from '../../components/reviews/ReviewForm';
 import ReadingStatusButton from '../../components/books/ReadingStatusButton';
+import FollowButton from '../../components/social/FollowButton';
 import { useAuth } from '../../context/AuthContext';
 import '../../components/books.css';
 import '../../components/reading-status.css';
@@ -15,18 +16,18 @@ const BookDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null);
 
-  /* ───────── load once ───────── */
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.getBookById(id);
-        setBook(res.book);
-        setReviews(res.reviews.map(r => ({ ...r, editing: false })));
-      } catch (err) {
-        setError(err.message);
-      }
-    })();
-  }, [id]);
+  /* ───────── load book data ───────── */
+  const fetchBookData = async () => {
+    try {
+      const res = await api.getBookById(id);
+      setBook(res.book);
+      setReviews(res.reviews.map(r => ({ ...r, editing: false })));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  useEffect(() => { fetchBookData(); }, [id]);
 
   /* ───────── helpers ───────── */
   const recalcStats = (list) => {
@@ -51,7 +52,7 @@ const BookDetail = () => {
     });
   };
 
-  const toggleEdit = (rid) =>
+  const toggleEdit = (rid) => 
     setReviews(list => list.map(r => (r.id === rid ? { ...r, editing: !r.editing } : r)));
 
   const handleDelete = async (rid) => {
@@ -66,12 +67,11 @@ const BookDetail = () => {
 
   const handleStatusChange = (status) => {
     console.log('Reading status updated:', status);
-    // Optionally show a notification or update UI
   };
 
   /* ───────── rendering ───────── */
-  if (error) return <p style={{ padding: '2rem' }}>{error}</p>;
-  if (!book) return <p style={{ padding: '2rem' }}>Loading…</p>;
+  if (error)  return <p style={{ padding: '2rem' }}>{error}</p>;
+  if (!book)  return <p style={{ padding: '2rem' }}>Loading…</p>;
 
   return (
     <div className="page-container">
@@ -80,7 +80,11 @@ const BookDetail = () => {
       </Link>
 
       <h1>{book.title}</h1>
-      {book.author && <h3 style={{ color: 'var(--primary-brown)', marginTop: 0 }}>by {book.author}</h3>}
+      {book.author && (
+        <h3 style={{ color: 'var(--primary-brown)', marginTop: 0 }}>
+          by {book.author}
+        </h3>
+      )}
 
       <p style={{ fontSize: '0.9rem', color: 'var(--text-light)' }}>
         {book.review_count} reviews • ★ {book.average_rating || '–'}
@@ -90,28 +94,27 @@ const BookDetail = () => {
         <p style={{ maxWidth: '700px', lineHeight: 1.6 }}>{book.description}</p>
       )}
 
-      {/* ───────── Reading Status Button ───────── */}
+      {/* Reading Status Button */}
       <div style={{ margin: '2rem 0' }}>
-        <ReadingStatusButton 
-          bookId={book.id} 
+        <ReadingStatusButton
+          bookId={book.id}
           onStatusChange={handleStatusChange}
         />
       </div>
 
-      {/* ───────── new-review form ───────── */}
+      {/* Add Review Form */}
       <div style={{ marginTop: '2rem' }}>
         <h2>Add Your Review</h2>
         <ReviewForm bookId={book.id} onSuccess={addReview} />
       </div>
 
-      {/* ───────── list ───────── */}
+      {/* Reviews List */}
       <div style={{ marginTop: '2rem' }}>
         <h2>Reviews</h2>
         {reviews.length === 0 && <p>No reviews yet.</p>}
 
         {reviews.map(r => (
           <div key={r.id} className="book-card" style={{ marginBottom: '1rem' }}>
-            {/* edit mode */}
             {r.editing ? (
               <ReviewForm
                 bookId={book.id}
@@ -122,10 +125,31 @@ const BookDetail = () => {
               />
             ) : (
               <>
-                <div className="book-meta" style={{ marginBottom: '.25rem' }}>
-                  <strong>{r.display_name || r.username}</strong>
+                <div
+                  className="book-meta"
+                  style={{
+                    marginBottom: '.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <Link to={`/users/${r.user_id}`} style={{ textDecoration: 'none' }}>
+                    <strong>{r.display_name || r.username}</strong>
+                  </Link>
+
+                  {/* Follow button with proper initial state */}
+                  {user && user.id !== r.user_id && (
+                    <FollowButton
+                      profileUserId={r.user_id}
+                      initialFollowingState={r.is_following_reviewer}
+                      onChange={fetchBookData}  // Refresh book data after follow/unfollow
+                    />
+                  )}
+
                   <span>•</span> ★ {r.rating}
                   <span>•</span> {new Date(r.created_at).toLocaleDateString()}
+
                   {user && r.user_id === user.id && (
                     <span className="review-actions">
                       <button onClick={() => toggleEdit(r.id)}>Edit</button>
@@ -133,6 +157,7 @@ const BookDetail = () => {
                     </span>
                   )}
                 </div>
+
                 <p style={{ margin: 0 }}>{r.body}</p>
               </>
             )}

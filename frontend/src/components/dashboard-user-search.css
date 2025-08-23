@@ -1,0 +1,24 @@
+.user-search-widget { margin-bottom: var(--spacing-lg); }
+
+.user-search-input {
+  width: 100%;
+  padding: .65rem 1rem;
+  border: 2px solid var(--light-brown);
+  border-radius: var(--radius-sm);
+  margin: .5rem 0 1rem;
+}
+
+.user-search-results { list-style: none; padding: 0; margin: 0; }
+
+.user-search-item {
+  display: flex; gap: .75rem; align-items: center;
+  padding: .5rem 0; border-bottom: 1px solid var(--parchment);
+}
+
+.user-link       { flex: 1; text-decoration: none; color: var(--dark-brown); }
+.user-link:hover { text-decoration: underline; }
+
+.user-stats { font-size: .8rem; color: var(--text-light); margin-right: .75rem; }
+
+.user-search-loading,
+.user-search-empty { font-size: .9rem; color: var(--text-light); margin: .25rem 0; }

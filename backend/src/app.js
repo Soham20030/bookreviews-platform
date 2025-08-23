@@ -6,6 +6,8 @@ import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/authRoutes.js';
 import bookRoutes from './routes/bookRoutes.js';
 import readingStatusRoutes from './routes/readingStatusRoutes.js';
+import followRoutes from './routes/followRoutes.js';
+import userProfileRoutes from './routes/userProfileRoutes.js';
 
 const app = express();
 
@@ -22,10 +24,20 @@ app.use(cors({
 
 console.log('✅ CORS configured for http://localhost:3001');
 
-// Rate limiting
+// Rate limiting - RELAXED for development
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
+  windowMs: 15 * 60 * 1000,     // 15 minutes
+  max: 1000,                    // Allow 1000 requests per 15 minutes (increased from 100)
+  message: {
+    error: 'Too many requests from this IP, please try again later.',
+    retryAfter: Math.round(15 * 60 * 1000 / 1000)
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Skip rate limiting in development for auth routes
+  skip: (req) => {
+    return process.env.NODE_ENV !== 'production' && req.path.startsWith('/api/auth/');
+  }
 });
 app.use('/api', limiter);
 
@@ -42,6 +54,8 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/reading-status', readingStatusRoutes);
+app.use('/api/follows', followRoutes);
+app.use('/api/users', userProfileRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -63,7 +77,5 @@ app.use('/*catchall', (req, res) => {
   console.log(`❓ 404 - Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ message: 'Route not found' });
 });
-
-
 
 export default app;

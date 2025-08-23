@@ -7,6 +7,10 @@ import CreateBookForm from './components/books/CreateBookForm';
 import MyLibrary from './pages/library/MyLibrary';
 import BooksPage from './pages/books/BooksPage';
 import BookDetail from './pages/books/BookDetail';
+import UserProfile from './pages/users/UserProfile';
+import UserSearchWidget from './components/Dashboard/UserSearchWidget';
+import UserFollowers from './pages/users/UserFollowers';
+import UserFollowing from './pages/users/UserFollowing';
 import './styles/global.css';
 import './components/dashboard-widgets.css';
 
@@ -243,6 +247,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="dashboard-content">
         {/* Welcome Section */}
+         <UserSearchWidget />
         <div style={{
           background: 'var(--parchment)',
           border: '2px solid var(--light-brown)',
@@ -369,6 +374,9 @@ function App() {
         <Route path="/books/:id" element={<BookDetail />} />
         <Route path="/library" element={<MyLibrary />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/users/:id" element={<UserProfile />} />
+<Route path="/users/:id/followers" element={<UserFollowers />} />
+<Route path="/users/:id/following" element={<UserFollowing />} />
       </Routes>
     </AuthProvider>
   );

@@ -181,39 +181,53 @@ export const getAllBooks = async (req, res) => {
 export const getBookById = async (req, res) => {
   try {
     const { id } = req.params;
+    const viewerId = req.user?.id || 0;  // Get current user ID
 
-    /* Book + aggregate stats */
-    const bookSql = `
-      SELECT b.*,
-             u.username AS created_by_username,
-             COUNT(r.id)            AS review_count,
-             ROUND(AVG(r.rating),1) AS average_rating
-        FROM books b
-   LEFT JOIN users   u ON b.created_by = u.id
-   LEFT JOIN reviews r ON b.id = r.book_id
-       WHERE b.id = $1
-    GROUP BY b.id, u.username
-    `;
-    const bookRes = await pool.query(bookSql, [id]);
-    if (!bookRes.rows.length) {
+    // Get book info
+    const bookResult = await pool.query(
+      `SELECT b.*,
+              COALESCE(AVG(r.rating), 0) AS average_rating,
+              COUNT(r.id) AS review_count
+         FROM books b
+    LEFT JOIN reviews r ON r.book_id = b.id
+        WHERE b.id = $1
+     GROUP BY b.id`,
+      [id]
+    );
+
+    if (bookResult.rows.length === 0) {
       return res.status(404).json({ message: 'Book not found' });
     }
 
-    /* Reviews for this book */
-    const reviewSql = `
-      SELECT r.*,
-             u.username,
-             u.display_name
-        FROM reviews r
-        JOIN users u ON r.user_id = u.id
-       WHERE r.book_id = $1
-    ORDER BY r.created_at DESC
-    `;
-    const revRes = await pool.query(reviewSql, [id]);
+    // Get reviews with following status
+    const reviewsResult = await pool.query(
+      `SELECT r.*,
+              u.username,
+              u.display_name,
+              EXISTS (
+                SELECT 1 FROM follows f
+                 WHERE f.follower_id = $2
+                   AND f.following_id = r.user_id
+              ) AS is_following_reviewer
+         FROM reviews r
+         JOIN users u ON u.id = r.user_id
+        WHERE r.book_id = $1
+     ORDER BY r.created_at DESC`,
+      [id, viewerId]
+    );
 
-    return res.json({ book: bookRes.rows[0], reviews: revRes.rows });
-  } catch (err) {
-    console.error('Get book by ID error:', err);
-    return res.status(500).json({ message: 'Server error while fetching book' });
+    const book = {
+      ...bookResult.rows[0],
+      average_rating: parseFloat(bookResult.rows.average_rating).toFixed(1)
+    };
+
+    return res.json({
+      book,
+      reviews: reviewsResult.rows
+    });
+
+  } catch (error) {
+    console.error('Get book by ID error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
