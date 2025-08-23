@@ -4,6 +4,7 @@ import api from '../../services/api';
 import ReviewForm from '../../components/reviews/ReviewForm';
 import ReadingStatusButton from '../../components/books/ReadingStatusButton';
 import FollowButton from '../../components/social/FollowButton';
+import CommentSection from '../../components/comments/CommentSection';
 import { useAuth } from '../../context/AuthContext';
 import '../../components/books.css';
 import '../../components/reading-status.css';
@@ -159,6 +160,9 @@ const BookDetail = () => {
                 </div>
 
                 <p style={{ margin: 0 }}>{r.body}</p>
+
+                {/* Comment Section - NEW */}
+                <CommentSection reviewId={r.id} />
               </>
             )}
           </div>

@@ -8,6 +8,8 @@ import bookRoutes from './routes/bookRoutes.js';
 import readingStatusRoutes from './routes/readingStatusRoutes.js';
 import followRoutes from './routes/followRoutes.js';
 import userProfileRoutes from './routes/userProfileRoutes.js';
+import commentRoutes from './routes/commentRoutes.js';
+
 
 const app = express();
 
@@ -56,6 +58,9 @@ app.use('/api/books', bookRoutes);
 app.use('/api/reading-status', readingStatusRoutes);
 app.use('/api/follows', followRoutes);
 app.use('/api/users', userProfileRoutes);
+app.use('/api', commentRoutes);
+
+
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -95,6 +95,32 @@ getUserFollowers(userId) { return this.request(`/users/${userId}/followers`); }
 getUserFollowing(userId) { return this.request(`/users/${userId}/following`); }
 
 
+getReviewComments(reviewId) { 
+  return this.request(`/reviews/${reviewId}/comments`); 
+}
+
+createComment(reviewId, comment_text) { 
+  return this.request(`/reviews/${reviewId}/comments`, { 
+    method: 'POST', 
+    body: JSON.stringify({ comment_text }) 
+  }); 
+}
+
+updateComment(commentId, comment_text) { 
+  return this.request(`/comments/${commentId}`, { 
+    method: 'PUT', 
+    body: JSON.stringify({ comment_text }) 
+  }); 
+}
+
+deleteComment(commentId) { 
+  return this.request(`/comments/${commentId}`, { 
+    method: 'DELETE' 
+  }); 
+}
+
+
+
 }
 
 export default new ApiService();
