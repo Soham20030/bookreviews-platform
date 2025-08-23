@@ -117,11 +117,20 @@ export const login = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    res.json({
-      user: req.user,
-    });
+    const result = await pool.query(
+      'SELECT id, username, email, display_name FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Return the user object, not the array
+    res.json({ user: result.rows[0] }); // <- This line is the fix!
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+

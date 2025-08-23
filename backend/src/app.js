@@ -4,22 +4,27 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/authRoutes.js';
+import bookRoutes from './routes/bookRoutes.js';
 
 const app = express();
+
+console.log('🔧 Setting up middleware...');
 
 // Security middleware
 app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? 'your-frontend-domain.com' 
-    : 'http://localhost:3001', // Updated to 3001
+    : 'http://localhost:3001',
   credentials: true
 }));
 
+console.log('✅ CORS configured for http://localhost:3001');
+
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100
 });
 app.use('/api', limiter);
 
@@ -34,15 +39,18 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/books', bookRoutes);
+
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
+  console.log('🏥 Health check called');
   res.json({ status: 'OK', message: 'BookReviews API is running!' });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Error:', err.stack);
   res.status(500).json({ 
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'production' ? {} : err.stack
@@ -50,8 +58,11 @@ app.use((err, req, res, next) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use('/*catchall', (req, res) => {
+  console.log(`❓ 404 - Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ message: 'Route not found' });
 });
+
+
 
 export default app;

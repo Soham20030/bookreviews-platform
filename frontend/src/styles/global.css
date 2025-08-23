@@ -6,28 +6,75 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
   font-family: var(--font-serif);
   background: linear-gradient(135deg, var(--parchment) 0%, var(--paper-aged) 100%);
   color: var(--text-dark);
   line-height: 1.6;
-  min-height: 100vh;
 }
 
-/* Book-like container styles */
+#root {
+  height: 100vh;
+  width: 100vw;
+}
+
+
+/* Auth container - centers the login/register forms */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--parchment) 0%, var(--light-brown) 100%);
+  width: 100%;
+}
+
+.auth-card {
+  background: var(--paper-white);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 20px 40px var(--shadow-medium),
+    0 4px 8px var(--shadow-light);
+  width: 100%;
+  max-width: 450px;
+  border: 2px solid var(--light-brown);
+  position: relative;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--gold), var(--primary-brown), var(--secondary-brown));
+  border-radius: var(--radius-lg);
+  z-index: -1;
+}
+
 .page-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
   padding: var(--spacing-lg);
   background: var(--paper-white);
   box-shadow: 
     0 4px 6px var(--shadow-light),
     0 1px 3px var(--shadow-medium);
-  border-radius: var(--radius-lg);
-  min-height: calc(100vh - 2rem);
-  margin-top: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
+  border-radius: 0;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto; /* This ensures content doesn't overflow */
 }
+
+
+
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
@@ -134,4 +181,33 @@ p {
     0 8px 16px var(--shadow-light),
     0 2px 4px var(--shadow-medium);
   border: 1px solid var(--light-brown);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: var(--spacing-md);
+  }
+  
+  .auth-card {
+    padding: var(--spacing-lg);
+    max-width: 100%;
+  }
+  
+  .page-container {
+    margin: var(--spacing-sm);
+    padding: var(--spacing-md);
+    width: calc(100% - 1rem);
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Loading animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
