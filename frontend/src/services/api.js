@@ -100,6 +100,15 @@ class ApiService {
   removeFromLibrary(bookId) {
     return this.request(`/reading-status/${bookId}`, { method: 'DELETE' });
   }
+
+  getBooksByStatus(status) {
+  return this.request(`/reading-status/${status}`);
 }
+
+getAllReadingStatuses() {
+  return this.request('/reading-status');
+}
+}
+
 
 export default new ApiService();

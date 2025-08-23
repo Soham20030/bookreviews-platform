@@ -51,6 +51,79 @@ export const setReadingStatus = async (req, res) => {
 };
 
 /* ─────────────────────────────────────────
+ *  GET /api/reading-status/:status
+ * ───────────────────────────────────────── */
+export const getBooksByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+    const userId = req.user.id;
+
+    const query = `
+      SELECT rs.*,
+             b.title, b.author, b.genre, b.description,
+             COUNT(r.id)::INTEGER AS review_count,
+             ROUND(AVG(r.rating), 1) AS average_rating
+        FROM reading_status rs
+        JOIN books b ON rs.book_id = b.id
+   LEFT JOIN reviews r ON b.id = r.book_id
+       WHERE rs.user_id = $1
+         AND rs.status = $2
+    GROUP BY rs.id, b.id
+    ORDER BY rs.updated_at DESC
+    `;
+
+    const { rows } = await pool.query(query, [userId, status]);
+    return res.json({ books: rows });
+  } catch (err) {
+    console.error('Get books by status error:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/* ─────────────────────────────────────────
+ *  GET /api/reading-status
+ * ───────────────────────────────────────── */
+export const getAllReadingStatuses = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const query = `
+      SELECT rs.*,
+             b.title, b.author, b.genre, b.description,
+             COUNT(r.id)::INTEGER AS review_count,
+             ROUND(AVG(r.rating), 1) AS average_rating
+        FROM reading_status rs
+        JOIN books b ON rs.book_id = b.id
+   LEFT JOIN reviews r ON b.id = r.book_id
+       WHERE rs.user_id = $1
+    GROUP BY rs.id, b.id
+    ORDER BY rs.status, rs.updated_at DESC
+    `;
+
+    const { rows } = await pool.query(query, [userId]);
+    
+    // Group by status
+    const grouped = {
+      want_to_read: [],
+      currently_reading: [],
+      finished: [],
+      did_not_finish: []
+    };
+
+    rows.forEach(book => {
+      if (grouped[book.status]) {
+        grouped[book.status].push(book);
+      }
+    });
+
+    return res.json({ library: grouped });
+  } catch (err) {
+    console.error('Get all reading statuses error:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/* ─────────────────────────────────────────
  *  GET /api/reading-status/book/:bookId
  * ───────────────────────────────────────── */
 export const getBookStatus = async (req, res) => {

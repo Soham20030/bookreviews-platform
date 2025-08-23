@@ -1,0 +1,178 @@
+/* ═══════════════════════════════════════════════════════════════
+   Dashboard Widgets Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+.dashboard-widget {
+  background: var(--paper-white);
+  border: 2px solid var(--light-brown);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.widget-header h3 {
+  margin: 0;
+  color: var(--dark-brown);
+}
+
+.view-all-link {
+  color: var(--primary-brown);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* ───────────────────── Library Stats Widget ───────────────────── */
+.library-stats-widget .stats-loading {
+  text-align: center;
+  color: var(--text-light);
+  padding: var(--spacing-lg);
+}
+
+.empty-library-widget {
+  text-align: center;
+  padding: var(--spacing-lg);
+  color: var(--text-light);
+}
+
+.empty-library-widget p {
+  margin-bottom: var(--spacing-md);
+}
+
+/* ───────────────────── Quick Stats ───────────────────── */
+.library-quick-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat-item {
+  text-align: center;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  background: var(--parchment);
+  transition: transform 0.2s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-1px);
+}
+
+.stat-item.highlight {
+  background: var(--primary-brown);
+  color: var(--paper-white);
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+/* ───────────────────── Recent Activity ───────────────────── */
+.recent-library-activity {
+  margin-bottom: var(--spacing-lg);
+}
+
+.recent-library-activity h4 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--dark-brown);
+  font-size: 1rem;
+}
+
+.activity-item {
+  margin-bottom: var(--spacing-xs);
+}
+
+.activity-book {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: var(--parchment);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.2s ease;
+}
+
+.activity-book:hover {
+  background: var(--light-brown);
+  text-decoration: none;
+  color: inherit;
+}
+
+.book-title {
+  font-weight: 500;
+  flex: 1;
+  margin-right: var(--spacing-sm);
+}
+
+.book-status {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+/* ───────────────────── Quick Actions ───────────────────── */
+.library-quick-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--light-brown);
+  color: var(--dark-brown);
+}
+
+.btn-outline:hover {
+  background: var(--light-brown);
+}
+
+/* ───────────────────── Responsive Design ───────────────────── */
+@media (max-width: 768px) {
+  .library-quick-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .library-quick-actions {
+    flex-direction: column;
+  }
+  
+  .activity-book {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .book-status {
+    align-self: flex-end;
+  }
+}

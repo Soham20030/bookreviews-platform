@@ -1,6 +1,8 @@
 import express from 'express';
 import {
   setReadingStatus,
+  getBooksByStatus,
+  getAllReadingStatuses,
   getBookStatus,
   removeFromLibrary
 } from '../controllers/readingStatusController.js';
@@ -12,6 +14,8 @@ const router = express.Router();
 router.use(authenticateToken);
 
 router.post('/', setReadingStatus);
+router.get('/', getAllReadingStatuses);
+router.get('/:status', getBooksByStatus);
 router.get('/book/:bookId', getBookStatus);
 router.delete('/:bookId', removeFromLibrary);
 
