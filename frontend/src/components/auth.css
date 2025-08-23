@@ -1,0 +1,100 @@
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--parchment) 0%, var(--light-brown) 100%);
+}
+
+.auth-card {
+  background: var(--paper-white);
+  padding: var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 20px 40px var(--shadow-medium),
+    0 4px 8px var(--shadow-light);
+  width: 100%;
+  max-width: 400px;
+  border: 2px solid var(--light-brown);
+  position: relative;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--gold), var(--primary-brown), var(--secondary-brown));
+  border-radius: var(--radius-lg);
+  z-index: -1;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.auth-header h2 {
+  color: var(--dark-brown);
+  font-size: 1.8rem;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 700;
+}
+
+.auth-header p {
+  color: var(--text-light);
+  font-style: italic;
+  font-size: 1rem;
+}
+
+.auth-form .form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.auth-submit {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1.1rem;
+  margin-top: var(--spacing-lg);
+}
+
+.auth-error {
+  background: #FFEBEE;
+  color: #C62828;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border-left: 4px solid #C62828;
+  margin-bottom: var(--spacing-lg);
+  font-size: 0.9rem;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--light-brown);
+}
+
+.auth-switch p {
+  color: var(--text-light);
+  margin-bottom: 0;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--primary-brown);
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  margin-left: var(--spacing-xs);
+  font-weight: 600;
+}
+
+.link-button:hover {
+  color: var(--dark-brown);
+}
