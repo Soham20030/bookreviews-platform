@@ -42,42 +42,119 @@ const CommentSection = ({ reviewId }) => {
     setComments(prev => prev.filter(comment => comment.id !== commentId));
   };
 
-  if (loading) return <p>Loading comments...</p>;
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        padding: '1rem',
+        color: 'var(--text-light)'
+      }}>
+        <div style={{
+          width: '16px',
+          height: '16px',
+          border: '2px solid var(--light-brown)',
+          borderTop: '2px solid var(--primary-brown)',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
+        Loading comments...
+      </div>
+    );
+  }
 
   return (
-    <div style={{ marginTop: '1rem', borderTop: '1px solid var(--light-brown)', paddingTop: '1rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h4 style={{ margin: 0, color: 'var(--dark-brown)' }}>
-          {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
+    <div className="comment-section" style={{
+      marginTop: '1.5rem',
+      paddingTop: '1.5rem',
+      borderTop: '1px solid var(--light-brown)'
+    }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '1rem'
+      }}>
+        <h4 style={{
+          color: 'var(--dark-brown)',
+          fontSize: '1rem',
+          fontWeight: '600',
+          margin: 0
+        }}>
+          Comments ({comments.length})
         </h4>
-        {user && (
-          <button 
-            onClick={() => setShowForm(!showForm)}
-            className="btn btn-outline"
-            style={{ fontSize: '0.8rem', padding: '0.25rem 0.5rem' }}
+        
+        {user && !showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            style={{
+              background: 'var(--primary-brown)',
+              color: 'white',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'var(--dark-brown)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'var(--primary-brown)';
+            }}
           >
-            {showForm ? 'Cancel' : 'Add Comment'}
+            Add Comment
           </button>
         )}
       </div>
 
+      {/* Comment Form */}
       {showForm && (
-        <CommentForm 
-          reviewId={reviewId}
-          onCommentAdded={handleCommentAdded}
-          onCancel={() => setShowForm(false)}
-        />
+        <div style={{ marginBottom: '1.5rem' }}>
+          <CommentForm
+            reviewId={reviewId}
+            onCommentAdded={handleCommentAdded}
+            onCancel={() => setShowForm(false)}
+          />
+        </div>
       )}
 
+      {/* Comments List */}
       {comments.length === 0 ? (
-        <p style={{ color: 'var(--text-light)', fontStyle: 'italic' }}>
-          No comments yet. {user ? 'Be the first to comment!' : 'Sign in to add a comment.'}
-        </p>
+        <div style={{
+          textAlign: 'center',
+          padding: '2rem',
+          background: 'var(--parchment)',
+          borderRadius: '8px',
+          border: '1px solid var(--light-brown)'
+        }}>
+          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💬</div>
+          <h5 style={{
+            color: 'var(--dark-brown)',
+            fontSize: '1rem',
+            fontWeight: '600',
+            marginBottom: '0.5rem'
+          }}>
+            No comments yet.
+          </h5>
+          <p style={{
+            color: 'var(--text-light)',
+            fontSize: '0.9rem',
+            margin: 0
+          }}>
+            {user ? 'Be the first to share your thoughts!' : 'Sign in to join the conversation.'}
+          </p>
+        </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {comments.map(comment => (
+        <div className="comments-list">
+          {/* ✅ FIX: Added key prop to each mapped comment */}
+          {comments.map((comment) => (
             <CommentItem
-              key={comment.id}
+              key={comment.id} // ✅ Added unique key prop
               comment={comment}
               onCommentUpdated={handleCommentUpdated}
               onCommentDeleted={handleCommentDeleted}
@@ -85,6 +162,41 @@ const CommentSection = ({ reviewId }) => {
           ))}
         </div>
       )}
+
+      {/* ✅ FIX: Moved CSS to regular style tag without jsx attribute */}
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        .comment-section {
+          margin-top: 1.5rem;
+        }
+
+        .comments-list {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        /* Responsive design using CSS classes instead of inline @media */
+        @media (max-width: 768px) {
+          .comment-section {
+            margin-top: 1rem;
+          }
+          
+          .comments-list {
+            gap: 0.75rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .comment-section h4 {
+            font-size: 0.9rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };

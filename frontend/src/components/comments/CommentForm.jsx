@@ -7,6 +7,10 @@ const CommentForm = ({ reviewId, onCommentAdded, onCancel, initialComment = '', 
   const [error, setError] = useState('');
 
   const isEditing = !!commentId;
+  const charCount = comment.length;
+  const charLimit = 500;
+  const isNearLimit = charCount > charLimit * 0.8;
+  const isOverLimit = charCount > charLimit;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,8 +20,8 @@ const CommentForm = ({ reviewId, onCommentAdded, onCancel, initialComment = '', 
       return;
     }
 
-    if (comment.length > 500) {
-      setError('Comment must be 500 characters or less');
+    if (comment.length > charLimit) {
+      setError(`Comment must be ${charLimit} characters or less`);
       return;
     }
 
@@ -44,66 +48,119 @@ const CommentForm = ({ reviewId, onCommentAdded, onCancel, initialComment = '', 
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ 
-      background: 'var(--parchment)', 
-      padding: '1rem', 
-      borderRadius: 'var(--radius-md)',
+    <form onSubmit={handleSubmit} style={{
+      background: 'var(--paper-white)',
       border: '1px solid var(--light-brown)',
-      marginBottom: '1rem'
+      borderRadius: '8px',
+      padding: '1rem'
     }}>
+      {error && (
+        <div style={{
+          background: '#ffebee',
+          border: '1px solid #ffcdd2',
+          color: '#d32f2f',
+          padding: '0.5rem 0.75rem',
+          borderRadius: '6px',
+          fontSize: '0.8rem',
+          marginBottom: '1rem'
+        }}>
+          {error}
+        </div>
+      )}
+
       <textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="Write your comment..."
-        rows="3"
+        placeholder={isEditing ? 'Edit your comment...' : 'Share your thoughts...'}
+        rows={3}
         style={{
           width: '100%',
-          padding: '0.5rem',
-          border: '1px solid var(--light-brown)',
-          borderRadius: 'var(--radius-sm)',
+          padding: '0.75rem',
+          border: `1px solid ${isOverLimit ? '#d32f2f' : 'var(--light-brown)'}`,
+          borderRadius: '6px',
+          fontSize: '0.9rem',
+          lineHeight: '1.5',
           resize: 'vertical',
-          fontSize: '0.9rem'
+          background: 'var(--parchment)',
+          boxSizing: 'border-box',
+          fontFamily: 'inherit'
         }}
         disabled={loading}
       />
-      
-      {error && (
-        <p style={{ color: 'red', fontSize: '0.8rem', margin: '0.5rem 0 0' }}>
-          {error}
-        </p>
-      )}
-      
-      <div style={{ 
-        display: 'flex', 
-        gap: '0.5rem', 
-        marginTop: '0.5rem',
-        fontSize: '0.8rem'
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: '0.75rem'
       }}>
-        <button
-          type="submit"
-          disabled={loading || !comment.trim()}
-          className="btn btn-primary"
-          style={{ padding: '0.25rem 0.75rem' }}
-        >
-          {loading ? 'Saving...' : isEditing ? 'Update' : 'Comment'}
-        </button>
-        
-        {onCancel && (
+        <span style={{
+          fontSize: '0.75rem',
+          color: isOverLimit ? '#d32f2f' : isNearLimit ? '#f39c12' : 'var(--text-light)'
+        }}>
+          {charCount}/{charLimit} characters
+        </span>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={loading}
+              style={{
+                background: 'none',
+                border: '1px solid var(--text-light)',
+                color: 'var(--text-light)',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                fontSize: '0.8rem',
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          )}
+          
           <button
-            type="button"
-            onClick={onCancel}
-            className="btn btn-secondary"
-            style={{ padding: '0.25rem 0.75rem' }}
-            disabled={loading}
+            type="submit"
+            disabled={loading || !comment.trim() || isOverLimit}
+            style={{
+              background: loading || !comment.trim() || isOverLimit 
+                ? 'var(--text-light)' 
+                : 'var(--primary-brown)',
+              color: 'white',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: '500',
+              cursor: loading || !comment.trim() || isOverLimit ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
           >
-            Cancel
+            {loading && (
+              <div style={{
+                width: '12px',
+                height: '12px',
+                border: '2px solid white',
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }} />
+            )}
+            {loading ? 'Saving...' : isEditing ? 'Update' : 'Comment'}
           </button>
-        )}
+        </div>
       </div>
-      
-      <p style={{ fontSize: '0.7rem', color: 'var(--text-light)', margin: '0.5rem 0 0' }}>
-        {comment.length}/500 characters
-      </p>
+
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </form>
   );
 };
