@@ -199,22 +199,31 @@ export const getBookById = async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
 
-    // Get reviews with following status
-    const reviewsResult = await pool.query(
-      `SELECT r.*,
-              u.username,
-              u.display_name,
-              EXISTS (
-                SELECT 1 FROM follows f
-                 WHERE f.follower_id = $2
-                   AND f.following_id = r.user_id
-              ) AS is_following_reviewer
-         FROM reviews r
-         JOIN users u ON u.id = r.user_id
-        WHERE r.book_id = $1
-     ORDER BY r.created_at DESC`,
-      [id, viewerId]
-    );
+const reviewsResult = await pool.query(
+  `SELECT r.id,
+          r.rating,
+          r.review_text,
+          r.created_at,
+          r.user_id,
+          u.username,
+          u.display_name,
+          COALESCE(
+            (SELECT COUNT(*)::INTEGER FROM review_likes WHERE review_id = r.id), 0
+          ) AS like_count,
+          COALESCE(
+            (SELECT COUNT(*)::INTEGER FROM review_likes WHERE review_id = r.id AND user_id = $2), 0
+          ) > 0 AS is_liked,
+          EXISTS (
+            SELECT 1 FROM follows 
+            WHERE follower_id = $2 AND following_id = r.user_id
+          ) AS is_following_reviewer
+     FROM reviews r
+     JOIN users u ON u.id = r.user_id
+    WHERE r.book_id = $1
+ ORDER BY r.created_at DESC`,
+  [id, viewerId]
+);
+
 
     const book = {
       ...bookResult.rows[0],

@@ -120,18 +120,6 @@ const RegisterForm = ({ onSwitchToLogin }) => {
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </button>
       </form>
-
-      <div className="auth-switch">
-        <p>Already have an account? 
-          <button 
-            type="button" 
-            className="link-button"
-            onClick={onSwitchToLogin}
-          >
-            Sign in here
-          </button>
-        </p>
-      </div>
     </div>
   );
 };

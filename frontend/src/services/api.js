@@ -119,7 +119,21 @@ deleteComment(commentId) {
   }); 
 }
 
+getReviewLikes(reviewId) { 
+  return this.request(`/reviews/${reviewId}/likes`); 
+}
 
+likeReview(reviewId) { 
+  return this.request(`/reviews/${reviewId}/like`, { 
+    method: 'POST' 
+  }); 
+}
+
+unlikeReview(reviewId) { 
+  return this.request(`/reviews/${reviewId}/like`, { 
+    method: 'DELETE' 
+  }); 
+}
 
 }
 

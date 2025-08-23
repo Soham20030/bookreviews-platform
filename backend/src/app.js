@@ -9,7 +9,7 @@ import readingStatusRoutes from './routes/readingStatusRoutes.js';
 import followRoutes from './routes/followRoutes.js';
 import userProfileRoutes from './routes/userProfileRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
-
+import likeRoutes from './routes/likeRoutes.js';
 
 const app = express();
 
@@ -59,7 +59,7 @@ app.use('/api/reading-status', readingStatusRoutes);
 app.use('/api/follows', followRoutes);
 app.use('/api/users', userProfileRoutes);
 app.use('/api', commentRoutes);
-
+app.use('/api', likeRoutes);
 
 
 // Health check endpoint

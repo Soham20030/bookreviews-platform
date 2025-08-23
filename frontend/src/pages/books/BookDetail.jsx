@@ -5,6 +5,7 @@ import ReviewForm from '../../components/reviews/ReviewForm';
 import ReadingStatusButton from '../../components/books/ReadingStatusButton';
 import FollowButton from '../../components/social/FollowButton';
 import CommentSection from '../../components/comments/CommentSection';
+import LikeButton from '../../components/reviews/LikeButton';
 import { useAuth } from '../../context/AuthContext';
 import '../../components/books.css';
 import '../../components/reading-status.css';
@@ -28,7 +29,9 @@ const BookDetail = () => {
     }
   };
 
-  useEffect(() => { fetchBookData(); }, [id]);
+  useEffect(() => { 
+    fetchBookData(); 
+  }, [id]);
 
   /* ───────── helpers ───────── */
   const recalcStats = (list) => {
@@ -71,8 +74,8 @@ const BookDetail = () => {
   };
 
   /* ───────── rendering ───────── */
-  if (error)  return <p style={{ padding: '2rem' }}>{error}</p>;
-  if (!book)  return <p style={{ padding: '2rem' }}>Loading…</p>;
+  if (error) return <p style={{ padding: '2rem' }}>{error}</p>;
+  if (!book) return <p style={{ padding: '2rem' }}>Loading…</p>;
 
   return (
     <div className="page-container">
@@ -120,7 +123,7 @@ const BookDetail = () => {
               <ReviewForm
                 bookId={book.id}
                 reviewId={r.id}
-                initial={{ rating: r.rating, body: r.body }}
+                initial={{ rating: r.rating, review_text: r.review_text }}
                 onSuccess={(upd) => updateReview(r.id, upd)}
                 onCancel={() => toggleEdit(r.id)}
               />
@@ -144,7 +147,7 @@ const BookDetail = () => {
                     <FollowButton
                       profileUserId={r.user_id}
                       initialFollowingState={r.is_following_reviewer}
-                      onChange={fetchBookData}  // Refresh book data after follow/unfollow
+                      onChange={fetchBookData}
                     />
                   )}
 
@@ -159,9 +162,23 @@ const BookDetail = () => {
                   )}
                 </div>
 
-                <p style={{ margin: 0 }}>{r.body}</p>
+                <p style={{ margin: 0 }}>{r.review_text}</p>
 
-                {/* Comment Section - NEW */}
+                {/* Like Button */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  marginTop: '0.5rem' 
+                }}>
+                  <LikeButton 
+                    reviewId={r.id}
+                    initialLikeCount={r.like_count || 0}
+                    initialIsLiked={r.is_liked || false}
+                  />
+                </div>
+
+                {/* Comment Section */}
                 <CommentSection reviewId={r.id} />
               </>
             )}
