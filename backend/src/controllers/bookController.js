@@ -1,7 +1,7 @@
 import pool from '../database/connection.js';
 
 /* ─────────────────────────────────────────
- *  POST /api/books          (auth required)
+ * POST /api/books (auth required)
  * ───────────────────────────────────────── */
 export const createBook = async (req, res) => {
   try {
@@ -15,11 +15,12 @@ export const createBook = async (req, res) => {
     /* Check for duplicates (title + author) */
     const dup = await pool.query(
       `SELECT id
-         FROM books
-        WHERE LOWER(title)  = LOWER($1)
-          AND LOWER(COALESCE(author, '')) = LOWER(COALESCE($2, ''))`,
+       FROM books
+       WHERE LOWER(title) = LOWER($1)
+       AND LOWER(COALESCE(author, '')) = LOWER(COALESCE($2, ''))`,
       [title, author || '']
     );
+
     if (dup.rows.length) {
       return res.status(400).json({
         message: 'This book already exists in our database',
@@ -27,12 +28,12 @@ export const createBook = async (req, res) => {
       });
     }
 
-    /* Insert */
+    /* Insert - removed created_by column since it doesn't exist */
     const result = await pool.query(
-      `INSERT INTO books (title, author, genre, description, created_by)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, title, author, genre, description, created_by, created_at`,
-      [title, author, genre, description, userId]
+      `INSERT INTO books (title, author, genre, description)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, title, author, genre, description, created_at`,
+      [title, author, genre, description]
     );
 
     return res.status(201).json({
@@ -46,11 +47,12 @@ export const createBook = async (req, res) => {
 };
 
 /* ─────────────────────────────────────────
- *  GET /api/books
+ * GET /api/books
  * ───────────────────────────────────────── */
 export const getAllBooks = async (req, res) => {
   try {
     console.log('📋 Query params received:', req.query);
+
     const {
       search = '',
       genre = '',
@@ -61,16 +63,15 @@ export const getAllBooks = async (req, res) => {
       offset = 0
     } = req.query;
 
+    // ✅ FIXED: Removed created_by references and users JOIN
     let sql = `
       SELECT b.*,
-             u.username AS created_by_username,
              COUNT(r.id)::INTEGER AS review_count,
              ROUND(AVG(r.rating), 1) AS average_rating
-        FROM books b
-   LEFT JOIN users   u ON b.created_by = u.id
-   LEFT JOIN reviews r ON b.id = r.book_id
+      FROM books b
+      LEFT JOIN reviews r ON b.id = r.book_id
     `;
-    
+
     const conditions = [];
     const params = [];
     let paramCount = 0;
@@ -114,7 +115,8 @@ export const getAllBooks = async (req, res) => {
       sql += ` WHERE ${conditions.join(' AND ')}`;
     }
 
-    sql += ` GROUP BY b.id, u.username`;
+    // ✅ FIXED: Removed u.username from GROUP BY
+    sql += ` GROUP BY b.id`;
 
     // Add HAVING for rating filters
     if (minRating || maxRating) {
@@ -157,9 +159,9 @@ export const getAllBooks = async (req, res) => {
 
     // Get unique genres for filter dropdown
     const genresResult = await pool.query(`
-      SELECT DISTINCT genre 
-      FROM books 
-      WHERE genre IS NOT NULL AND genre != '' 
+      SELECT DISTINCT genre
+      FROM books
+      WHERE genre IS NOT NULL AND genre != ''
       ORDER BY genre ASC
     `);
 
@@ -174,24 +176,23 @@ export const getAllBooks = async (req, res) => {
   }
 };
 
-
 /* ─────────────────────────────────────────
- *  GET /api/books/:id
+ * GET /api/books/:id
  * ───────────────────────────────────────── */
 export const getBookById = async (req, res) => {
   try {
     const { id } = req.params;
-    const viewerId = req.user?.id || 0;  // Get current user ID
+    const viewerId = req.user?.id || 0; // Get current user ID
 
     // Get book info
     const bookResult = await pool.query(
       `SELECT b.*,
               COALESCE(AVG(r.rating), 0) AS average_rating,
               COUNT(r.id) AS review_count
-         FROM books b
-    LEFT JOIN reviews r ON r.book_id = b.id
-        WHERE b.id = $1
-     GROUP BY b.id`,
+       FROM books b
+       LEFT JOIN reviews r ON r.book_id = b.id
+       WHERE b.id = $1
+       GROUP BY b.id`,
       [id]
     );
 
@@ -199,42 +200,40 @@ export const getBookById = async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
 
-const reviewsResult = await pool.query(
-  `SELECT r.id,
-          r.rating,
-          r.review_text,
-          r.created_at,
-          r.user_id,
-          u.username,
-          u.display_name,
-          COALESCE(
-            (SELECT COUNT(*)::INTEGER FROM review_likes WHERE review_id = r.id), 0
-          ) AS like_count,
-          COALESCE(
-            (SELECT COUNT(*)::INTEGER FROM review_likes WHERE review_id = r.id AND user_id = $2), 0
-          ) > 0 AS is_liked,
-          EXISTS (
-            SELECT 1 FROM follows 
-            WHERE follower_id = $2 AND following_id = r.user_id
-          ) AS is_following_reviewer
-     FROM reviews r
-     JOIN users u ON u.id = r.user_id
-    WHERE r.book_id = $1
- ORDER BY r.created_at DESC`,
-  [id, viewerId]
-);
-
+    const reviewsResult = await pool.query(
+      `SELECT r.id,
+              r.rating,
+              r.review_text,
+              r.created_at,
+              r.user_id,
+              u.username,
+              u.display_name,
+              COALESCE(
+                (SELECT COUNT(*)::INTEGER FROM likes WHERE review_id = r.id), 0
+              ) AS like_count,
+              COALESCE(
+                (SELECT COUNT(*)::INTEGER FROM likes WHERE review_id = r.id AND user_id = $2), 0
+              ) > 0 AS is_liked,
+              EXISTS (
+                SELECT 1 FROM follows
+                WHERE follower_id = $2 AND following_id = r.user_id
+              ) AS is_following_reviewer
+       FROM reviews r
+       JOIN users u ON u.id = r.user_id
+       WHERE r.book_id = $1
+       ORDER BY r.created_at DESC`,
+      [id, viewerId]
+    );
 
     const book = {
       ...bookResult.rows[0],
-      average_rating: parseFloat(bookResult.rows.average_rating).toFixed(1)
+      average_rating: parseFloat(bookResult.rows[0].average_rating).toFixed(1)
     };
 
     return res.json({
       book,
       reviews: reviewsResult.rows
     });
-
   } catch (error) {
     console.error('Get book by ID error:', error);
     return res.status(500).json({ message: 'Server error' });
