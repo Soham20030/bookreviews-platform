@@ -1,7 +1,6 @@
 import express from 'express';
 import { createBook, getAllBooks, getBookById } from '../controllers/bookController.js';
 import { authenticateToken } from '../middleware/auth.js';
-import reviewRoutes from './reviewRoutes.js';
 
 const router = express.Router();
 
@@ -14,7 +13,7 @@ router.get('/', getAllBooks); // Public - anyone can see books
 // ✅ SPECIFIC ROUTES MUST COME BEFORE GENERIC /:id ROUTE
 router.get('/add', authenticateToken, (req, res) => {
   // Return data needed for the add book form (like available genres)
-  res.json({ 
+  res.json({
     message: 'Add book form data',
     availableGenres: [
       'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Science Fiction',
@@ -27,6 +26,6 @@ router.get('/add', authenticateToken, (req, res) => {
 // Generic route MUST come after specific routes
 router.get('/:id', getBookById); // Public - anyone can see book details
 
-router.use('/:id/reviews', reviewRoutes);
+// ✅ REMOVED: router.use('/:id/reviews', reviewRoutes); // This was causing the error
 
 export default router;
