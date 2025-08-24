@@ -34,6 +34,9 @@ app.use(cors({
 
 console.log(`✅ CORS configured for ${process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : 'http://localhost:3001'}`);
 
+// Trust proxy when behind Railway (fixes rate limit validation error)
+app.set('trust proxy', 1);
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -60,7 +63,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-
+// API Routes - all active for login/registration to work
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/reading-status', readingStatusRoutes);
@@ -68,7 +71,7 @@ app.use('/api/follows', followRoutes);
 app.use('/api/users', userProfileRoutes);
 app.use('/api', commentRoutes);
 app.use('/api', likeRoutes);
-app.use('/api/books', reviewRoutes); 
+app.use('/api/books', reviewRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -76,23 +79,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'BookReviews API is running!' });
 });
 
-// Serve React app in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-  });
-} else {
-  // ✅ FIXED: Express 5 compatible 404 handler
-  app.use((req, res, next) => {
-    if (req.path.startsWith('/api/')) {
-      console.log(`❓ 404 - API route not found: ${req.method} ${req.originalUrl}`);
-      res.status(404).json({ message: 'API route not found' });
-    } else {
-      next();
-    }
-  });
-}
+// Frontend serving code REMOVED - frontend deployed separately on Vercel
+
+// 404 handler for API routes only
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    console.log(`❓ 404 - API route not found: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({ message: 'API route not found' });
+  } else {
+    next();
+  }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
