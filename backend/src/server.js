@@ -1,6 +1,13 @@
 import app from './app.js';
 import pool from './database/connection.js';
 
+// Add debug logging at the very start
+console.log('🔍 DEBUG - Environment Variables:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'MISSING');
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL ? 'SET' : 'MISSING');
+console.log('PORT:', process.env.PORT);
+
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
