@@ -6,7 +6,6 @@ const RegisterForm = ({ onSwitchToLogin }) => {
   const { register: registerUser, error, clearError } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
-  
   const password = watch('password');
 
   const onSubmit = async (data) => {
@@ -22,126 +21,374 @@ const RegisterForm = ({ onSwitchToLogin }) => {
   };
 
   return (
-    <div className="auth-form">
-      <div className="auth-header">
-        <h2>Create your reading account</h2>
-        <p>Join thousands of book lovers in building their digital library</p>
+    <div style={{
+      maxWidth: '450px',
+      margin: '0 auto',
+      padding: '2rem',
+      background: 'var(--paper-white)',
+      borderRadius: '20px',
+      boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15)',
+      border: '1px solid var(--light-brown)'
+    }}>
+      {/* Header */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '2.5rem'
+      }}>
+        <div style={{
+          fontSize: '3rem',
+          marginBottom: '1rem',
+          animation: 'float 3s ease-in-out infinite'
+        }}>
+          ✨
+        </div>
+        <h2 style={{
+          color: 'var(--dark-brown)',
+          fontSize: '1.8rem',
+          fontWeight: '700',
+          marginBottom: '0.5rem'
+        }}>
+          Join Our Community
+        </h2>
+        <p style={{
+          color: 'var(--text-light)',
+          fontSize: '1rem',
+          margin: 0,
+          lineHeight: '1.5'
+        }}>
+          Create your reading account
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+      {/* Error Message */}
+      {error && (
+        <div style={{
+          background: '#ffebee',
+          border: '1px solid #ffcdd2',
+          color: '#d32f2f',
+          padding: '1rem 1.25rem',
+          borderRadius: '12px',
+          fontSize: '0.9rem',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+          {error}
+        </div>
+      )}
 
-        <div className="form-group">
-          <label htmlFor="username">Username</label>
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
+        {/* Username Field */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '0.5rem',
+            fontWeight: '600',
+            color: 'var(--dark-brown)',
+            fontSize: '0.95rem'
+          }}>
+            Username
+          </label>
           <input
-            id="username"
-            {...register('username', {
+            type="text"
+            {...register('username', { 
               required: 'Username is required',
               minLength: {
                 value: 3,
-                message: 'Username must be at least 3 characters long'
+                message: 'Username must be at least 3 characters'
               },
               pattern: {
                 value: /^[a-zA-Z0-9_]+$/,
                 message: 'Username can only contain letters, numbers, and underscores'
               }
             })}
-            type="text"
+            style={{
+              width: '100%',
+              padding: '1rem 1.25rem',
+              border: `2px solid ${errors.username ? '#d32f2f' : 'var(--light-brown)'}`,
+              borderRadius: '12px',
+              fontSize: '1rem',
+              transition: 'all 0.3s ease',
+              background: 'var(--parchment)',
+              boxSizing: 'border-box'
+            }}
             placeholder="Choose a username"
-            className={errors.username ? 'error' : ''}
             disabled={isLoading}
+            onFocus={(e) => {
+              if (!errors.username) {
+                e.target.style.borderColor = 'var(--primary-brown)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(139, 69, 19, 0.1)';
+              }
+            }}
+            onBlur={(e) => {
+              if (!errors.username) {
+                e.target.style.borderColor = 'var(--light-brown)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
           />
           {errors.username && (
-            <p className="field-error">{errors.username.message}</p>
+            <p style={{
+              color: '#d32f2f',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              marginBottom: 0
+            }}>
+              {errors.username.message}
+            </p>
           )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
+        {/* Email Field */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '0.5rem',
+            fontWeight: '600',
+            color: 'var(--dark-brown)',
+            fontSize: '0.95rem'
+          }}>
+            Email Address
+          </label>
           <input
-            id="email"
-            {...register('email', {
+            type="email"
+            {...register('email', { 
               required: 'Email is required',
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Invalid email address'
+                message: 'Please enter a valid email address'
               }
             })}
-            type="email"
+            style={{
+              width: '100%',
+              padding: '1rem 1.25rem',
+              border: `2px solid ${errors.email ? '#d32f2f' : 'var(--light-brown)'}`,
+              borderRadius: '12px',
+              fontSize: '1rem',
+              transition: 'all 0.3s ease',
+              background: 'var(--parchment)',
+              boxSizing: 'border-box'
+            }}
             placeholder="Enter your email"
-            className={errors.email ? 'error' : ''}
             disabled={isLoading}
+            onFocus={(e) => {
+              if (!errors.email) {
+                e.target.style.borderColor = 'var(--primary-brown)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(139, 69, 19, 0.1)';
+              }
+            }}
+            onBlur={(e) => {
+              if (!errors.email) {
+                e.target.style.borderColor = 'var(--light-brown)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
           />
           {errors.email && (
-            <p className="field-error">{errors.email.message}</p>
+            <p style={{
+              color: '#d32f2f',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              marginBottom: 0
+            }}>
+              {errors.email.message}
+            </p>
           )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
+        {/* Password Field */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '0.5rem',
+            fontWeight: '600',
+            color: 'var(--dark-brown)',
+            fontSize: '0.95rem'
+          }}>
+            Password
+          </label>
           <input
-            id="password"
-            {...register('password', {
+            type="password"
+            {...register('password', { 
               required: 'Password is required',
               minLength: {
                 value: 6,
-                message: 'Password must be at least 6 characters long'
+                message: 'Password must be at least 6 characters'
               }
             })}
-            type="password"
+            style={{
+              width: '100%',
+              padding: '1rem 1.25rem',
+              border: `2px solid ${errors.password ? '#d32f2f' : 'var(--light-brown)'}`,
+              borderRadius: '12px',
+              fontSize: '1rem',
+              transition: 'all 0.3s ease',
+              background: 'var(--parchment)',
+              boxSizing: 'border-box'
+            }}
             placeholder="Create a password"
-            className={errors.password ? 'error' : ''}
             disabled={isLoading}
+            onFocus={(e) => {
+              if (!errors.password) {
+                e.target.style.borderColor = 'var(--primary-brown)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(139, 69, 19, 0.1)';
+              }
+            }}
+            onBlur={(e) => {
+              if (!errors.password) {
+                e.target.style.borderColor = 'var(--light-brown)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
           />
           {errors.password && (
-            <p className="field-error">{errors.password.message}</p>
+            <p style={{
+              color: '#d32f2f',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              marginBottom: 0
+            }}>
+              {errors.password.message}
+            </p>
           )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm Password</label>
+        {/* Confirm Password Field */}
+        <div style={{ marginBottom: '2rem' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '0.5rem',
+            fontWeight: '600',
+            color: 'var(--dark-brown)',
+            fontSize: '0.95rem'
+          }}>
+            Confirm Password
+          </label>
           <input
-            id="confirmPassword"
-            {...register('confirmPassword', {
-              required: 'Please confirm your password',
-              validate: (value) =>
-                value === password || 'Passwords do not match'
-            })}
             type="password"
+            {...register('confirmPassword', { 
+              required: 'Please confirm your password',
+              validate: value => value === password || 'Passwords do not match'
+            })}
+            style={{
+              width: '100%',
+              padding: '1rem 1.25rem',
+              border: `2px solid ${errors.confirmPassword ? '#d32f2f' : 'var(--light-brown)'}`,
+              borderRadius: '12px',
+              fontSize: '1rem',
+              transition: 'all 0.3s ease',
+              background: 'var(--parchment)',
+              boxSizing: 'border-box'
+            }}
             placeholder="Confirm your password"
-            className={errors.confirmPassword ? 'error' : ''}
             disabled={isLoading}
+            onFocus={(e) => {
+              if (!errors.confirmPassword) {
+                e.target.style.borderColor = 'var(--primary-brown)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(139, 69, 19, 0.1)';
+              }
+            }}
+            onBlur={(e) => {
+              if (!errors.confirmPassword) {
+                e.target.style.borderColor = 'var(--light-brown)';
+                e.target.style.boxShadow = 'none';
+              }
+            }}
           />
           {errors.confirmPassword && (
-            <p className="field-error">{errors.confirmPassword.message}</p>
+            <p style={{
+              color: '#d32f2f',
+              fontSize: '0.8rem',
+              marginTop: '0.5rem',
+              marginBottom: 0
+            }}>
+              {errors.confirmPassword.message}
+            </p>
           )}
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}
-          className="auth-button primary"
+          style={{
+            width: '100%',
+            background: isLoading ? 'var(--text-light)' : 'var(--primary-brown)',
+            color: 'white',
+            border: 'none',
+            padding: '1rem 1.5rem',
+            borderRadius: '12px',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.3s ease',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.75rem'
+          }}
+          onMouseEnter={(e) => {
+            if (!isLoading) {
+              e.target.style.background = 'var(--dark-brown)';
+              e.target.style.transform = 'translateY(-2px)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isLoading) {
+              e.target.style.background = 'var(--primary-brown)';
+              e.target.style.transform = 'translateY(0)';
+            }
+          }}
         >
+          {isLoading && (
+            <div style={{
+              width: '20px',
+              height: '20px',
+              border: '2px solid white',
+              borderTop: '2px solid transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+          )}
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </button>
       </form>
 
-      <div className="auth-footer">
-        <p>
-          Already have an account?{' '}
-          <button
-            type="button"
-            onClick={onSwitchToLogin}
-            className="link-button"
-          >
-            Sign in
-          </button>
-        </p>
-      </div>
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+          .auth-form {
+            margin: 1rem;
+            padding: 1.5rem;
+          }
+        }
+      `}</style>
     </div>
   );
 };
