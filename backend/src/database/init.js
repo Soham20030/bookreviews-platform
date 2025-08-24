@@ -18,7 +18,7 @@ const createTables = async () => {
       )
     `);
 
-    // Create Books table
+    // Create Books table with created_by column
     await pool.query(`
       CREATE TABLE IF NOT EXISTS books (
         id SERIAL PRIMARY KEY,
@@ -29,8 +29,24 @@ const createTables = async () => {
         publication_date DATE,
         cover_image_url TEXT,
         description TEXT,
+        created_by INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create both reading_status (singular) and reading_statuses (plural) for compatibility
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS reading_status (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+        status VARCHAR(20) CHECK (status IN ('want_to_read', 'currently_reading', 'completed')),
+        started_date DATE,
+        finished_date DATE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, book_id)
       )
     `);
 
@@ -47,22 +63,7 @@ const createTables = async () => {
       )
     `);
 
-    // Create Reading Status table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS reading_statuses (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
-        status VARCHAR(20) CHECK (status IN ('want_to_read', 'currently_reading', 'completed')),
-        started_date DATE,
-        finished_date DATE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(user_id, book_id)
-      )
-    `);
-
-    // Create other tables...
+    // Create other tables
     await pool.query(`
       CREATE TABLE IF NOT EXISTS follows (
         id SERIAL PRIMARY KEY,
