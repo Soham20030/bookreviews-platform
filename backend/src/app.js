@@ -10,10 +10,15 @@ import followRoutes from './routes/followRoutes.js';
 import userProfileRoutes from './routes/userProfileRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import likeRoutes from './routes/likeRoutes.js';
+import path from 'path';
 
 const app = express();
 
 console.log('🔧 Setting up middleware...');
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+}
 
 // Security middleware
 app.use(helmet());
