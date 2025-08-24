@@ -8,6 +8,12 @@ const RegisterForm = ({ onSwitchToLogin }) => {
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
   const password = watch('password');
 
+  console.log('🔍 Environment check:', {
+  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  NODE_ENV: import.meta.env.NODE_ENV,
+  MODE: import.meta.env.MODE
+});
+
   const onSubmit = async (data) => {
     try {
       setIsLoading(true);
