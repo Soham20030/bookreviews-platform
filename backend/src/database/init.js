@@ -35,13 +35,15 @@ const createTables = async () => {
       )
     `);
 
-    // Create both reading_status (singular) and reading_statuses (plural) for compatibility
+    await pool.query(`DROP TABLE IF EXISTS reading_status CASCADE`);
+
+    // ✅ FIXED: Updated reading_status constraint to match controller
     await pool.query(`
       CREATE TABLE IF NOT EXISTS reading_status (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
-        status VARCHAR(20) CHECK (status IN ('want_to_read', 'currently_reading', 'completed')),
+        status VARCHAR(20) CHECK (status IN ('want_to_read', 'currently_reading', 'finished', 'did_not_finish')),
         started_date DATE,
         finished_date DATE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
