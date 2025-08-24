@@ -1,5 +1,6 @@
 import app from './app.js';
 import pool from './database/connection.js';
+import createTables from './database/init.js'; 
 
 // Add debug logging to verify environment variables
 console.log('🔍 DEBUG - Environment Variables:');
@@ -20,7 +21,8 @@ async function startServer() {
     await client.query('SELECT NOW()');
     client.release();
     console.log('✅ Database connected successfully!');
-
+    await createTables();
+    
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV}`);
