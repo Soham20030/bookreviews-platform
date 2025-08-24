@@ -7,18 +7,18 @@ export const getReviewComments = async (req, res) => {
     const viewerId = req.user?.id || 0;
 
     const result = await pool.query(
-      `SELECT rc.id,
-              rc.comment_text,
-              rc.created_at,
-              rc.updated_at,
-              rc.user_id,
+      `SELECT c.id,
+              c.comment_text,
+              c.created_at,
+              c.updated_at,
+              c.user_id,
               u.username,
               u.display_name,
-              (rc.user_id = $2) AS is_my_comment
-         FROM review_comments rc
-         JOIN users u ON u.id = rc.user_id
-        WHERE rc.review_id = $1
-     ORDER BY rc.created_at ASC`,
+              (c.user_id = $2) AS is_my_comment
+       FROM comments c
+       JOIN users u ON u.id = c.user_id
+       WHERE c.review_id = $1
+       ORDER BY c.created_at ASC`,
       [reviewId, viewerId]
     );
 
@@ -45,7 +45,7 @@ export const createComment = async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO review_comments (user_id, review_id, comment_text)
+      `INSERT INTO comments (user_id, review_id, comment_text)
        VALUES ($1, $2, $3)
        RETURNING id, comment_text, created_at, updated_at, user_id`,
       [userId, reviewId, comment_text.trim()]
@@ -53,21 +53,21 @@ export const createComment = async (req, res) => {
 
     // Get the full comment with user info
     const commentResult = await pool.query(
-      `SELECT rc.id,
-              rc.comment_text,
-              rc.created_at,
-              rc.updated_at,
-              rc.user_id,
+      `SELECT c.id,
+              c.comment_text,
+              c.created_at,
+              c.updated_at,
+              c.user_id,
               u.username,
               u.display_name,
               true AS is_my_comment
-         FROM review_comments rc
-         JOIN users u ON u.id = rc.user_id
-        WHERE rc.id = $1`,
+       FROM comments c
+       JOIN users u ON u.id = c.user_id
+       WHERE c.id = $1`,
       [result.rows[0].id]
     );
 
-    return res.status(201).json({ comment: commentResult.rows });
+    return res.status(201).json({ comment: commentResult.rows[0] });
   } catch (err) {
     console.error('createComment error:', err);
     return res.status(500).json({ message: 'Server error' });
@@ -91,7 +91,7 @@ export const updateComment = async (req, res) => {
 
     // Check if user owns this comment
     const ownerCheck = await pool.query(
-      'SELECT user_id FROM review_comments WHERE id = $1',
+      'SELECT user_id FROM comments WHERE id = $1',
       [commentId]
     );
 
@@ -104,8 +104,8 @@ export const updateComment = async (req, res) => {
     }
 
     const result = await pool.query(
-      `UPDATE review_comments 
-         SET comment_text = $1, updated_at = CURRENT_TIMESTAMP
+      `UPDATE comments
+       SET comment_text = $1, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2 AND user_id = $3
        RETURNING id, comment_text, created_at, updated_at, user_id`,
       [comment_text.trim(), commentId, userId]
@@ -113,21 +113,21 @@ export const updateComment = async (req, res) => {
 
     // Get the full comment with user info
     const commentResult = await pool.query(
-      `SELECT rc.id,
-              rc.comment_text,
-              rc.created_at,
-              rc.updated_at,
-              rc.user_id,
+      `SELECT c.id,
+              c.comment_text,
+              c.created_at,
+              c.updated_at,
+              c.user_id,
               u.username,
               u.display_name,
               true AS is_my_comment
-         FROM review_comments rc
-         JOIN users u ON u.id = rc.user_id
-        WHERE rc.id = $1`,
+       FROM comments c
+       JOIN users u ON u.id = c.user_id
+       WHERE c.id = $1`,
       [result.rows[0].id]
     );
 
-    return res.json({ comment: commentResult.rows });
+    return res.json({ comment: commentResult.rows[0] });
   } catch (err) {
     console.error('updateComment error:', err);
     return res.status(500).json({ message: 'Server error' });
@@ -142,7 +142,7 @@ export const deleteComment = async (req, res) => {
 
     // Check if user owns this comment
     const ownerCheck = await pool.query(
-      'SELECT user_id FROM review_comments WHERE id = $1',
+      'SELECT user_id FROM comments WHERE id = $1',
       [commentId]
     );
 
@@ -155,7 +155,7 @@ export const deleteComment = async (req, res) => {
     }
 
     await pool.query(
-      'DELETE FROM review_comments WHERE id = $1 AND user_id = $2',
+      'DELETE FROM comments WHERE id = $1 AND user_id = $2',
       [commentId, userId]
     );
 
