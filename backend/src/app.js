@@ -22,19 +22,21 @@ const __dirname = path.dirname(__filename);
 
 // Security middleware
 app.use(helmet());
+
+// CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'your-frontend-domain.com' 
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL || 'your-production-domain.com'
     : 'http://localhost:3001',
   credentials: true
 }));
 
-console.log('✅ CORS configured for http://localhost:3001');
+console.log(`✅ CORS configured for ${process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : 'http://localhost:3001'}`);
 
-// Rate limiting - RELAXED for development
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,     // 15 minutes
-  max: 1000,                    // Allow 1000 requests per 15 minutes (increased from 100)
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Allow 1000 requests per 15 minutes
   message: {
     error: 'Too many requests from this IP, please try again later.',
     retryAfter: Math.round(15 * 60 * 1000 / 1000)
@@ -46,6 +48,7 @@ const limiter = rateLimit({
     return process.env.NODE_ENV !== 'production' && req.path.startsWith('/api/auth/');
   }
 });
+
 app.use('/api', limiter);
 
 // Body parsing middleware
@@ -57,7 +60,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// Routes
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/reading-status', readingStatusRoutes);
@@ -66,26 +69,36 @@ app.use('/api/users', userProfileRoutes);
 app.use('/api', commentRoutes);
 app.use('/api', likeRoutes);
 
-
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   console.log('🏥 Health check called');
   res.json({ status: 'OK', message: 'BookReviews API is running!' });
 });
 
+// ✅ SERVE REACT APP IN PRODUCTION
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from React build
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  
+  // Handle React routing - catch all handler for SPA
+  app.get('/*catchall', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  });
+} else {
+  // 404 handler for API routes only in development
+  app.use('/api/*', (req, res) => {
+    console.log(`❓ 404 - API route not found: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({ message: 'API route not found' });
+  });
+}
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('❌ Error:', err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     message: 'Something went wrong!',
     error: process.env.NODE_ENV === 'production' ? {} : err.stack
   });
-});
-
-// 404 handler
-app.use('/*catchall', (req, res) => {
-  console.log(`❓ 404 - Route not found: ${req.method} ${req.originalUrl}`);
-  res.status(404).json({ message: 'Route not found' });
 });
 
 export default app;
