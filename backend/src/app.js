@@ -11,14 +11,14 @@ import userProfileRoutes from './routes/userProfileRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import likeRoutes from './routes/likeRoutes.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 
 console.log('🔧 Setting up middleware...');
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Security middleware
 app.use(helmet());
