@@ -3,14 +3,14 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-// import authRoutes from './routes/authRoutes.js';
-// import bookRoutes from './routes/bookRoutes.js';
-// import readingStatusRoutes from './routes/readingStatusRoutes.js';
-// import followRoutes from './routes/followRoutes.js';
-// import userProfileRoutes from './routes/userProfileRoutes.js';
-// import commentRoutes from './routes/commentRoutes.js';
-// import likeRoutes from './routes/likeRoutes.js';
-// import reviewRoutes from './routes/reviewRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import bookRoutes from './routes/bookRoutes.js';
+import readingStatusRoutes from './routes/readingStatusRoutes.js';
+import followRoutes from './routes/followRoutes.js';
+import userProfileRoutes from './routes/userProfileRoutes.js';
+import commentRoutes from './routes/commentRoutes.js';
+import likeRoutes from './routes/likeRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -60,15 +60,15 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
-// API Routes (uncomment when ready)
-// app.use('/api/auth', authRoutes);
-// app.use('/api/books', bookRoutes);
-// app.use('/api/reading-status', readingStatusRoutes);
-// app.use('/api/follows', followRoutes);
-// app.use('/api/users', userProfileRoutes);
-// app.use('/api', commentRoutes);
-// app.use('/api', likeRoutes);
-// app.use('/api/books', reviewRoutes); 
+
+app.use('/api/auth', authRoutes);
+app.use('/api/books', bookRoutes);
+app.use('/api/reading-status', readingStatusRoutes);
+app.use('/api/follows', followRoutes);
+app.use('/api/users', userProfileRoutes);
+app.use('/api', commentRoutes);
+app.use('/api', likeRoutes);
+app.use('/api/books', reviewRoutes); 
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
