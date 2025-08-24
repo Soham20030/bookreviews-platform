@@ -18,7 +18,7 @@ export const likeReview = async (req, res) => {
 
     // Check if user already liked this review
     const existingLike = await pool.query(
-      'SELECT id FROM review_likes WHERE user_id = $1 AND review_id = $2',
+      'SELECT id FROM likes WHERE user_id = $1 AND review_id = $2',
       [userId, reviewId]
     );
 
@@ -28,17 +28,17 @@ export const likeReview = async (req, res) => {
 
     // Add like
     await pool.query(
-      'INSERT INTO review_likes (user_id, review_id) VALUES ($1, $2)',
+      'INSERT INTO likes (user_id, review_id) VALUES ($1, $2)',
       [userId, reviewId]
     );
 
     // Get updated like count
     const likeCount = await pool.query(
-      'SELECT COUNT(*) as count FROM review_likes WHERE review_id = $1',
+      'SELECT COUNT(*) as count FROM likes WHERE review_id = $1',
       [reviewId]
     );
 
-    return res.json({ 
+    return res.json({
       message: 'Review liked',
       likeCount: parseInt(likeCount.rows[0].count),
       isLiked: true
@@ -57,7 +57,7 @@ export const unlikeReview = async (req, res) => {
 
     // Remove like
     const result = await pool.query(
-      'DELETE FROM review_likes WHERE user_id = $1 AND review_id = $2',
+      'DELETE FROM likes WHERE user_id = $1 AND review_id = $2',
       [userId, reviewId]
     );
 
@@ -67,11 +67,11 @@ export const unlikeReview = async (req, res) => {
 
     // Get updated like count
     const likeCount = await pool.query(
-      'SELECT COUNT(*) as count FROM review_likes WHERE review_id = $1',
+      'SELECT COUNT(*) as count FROM likes WHERE review_id = $1',
       [reviewId]
     );
 
-    return res.json({ 
+    return res.json({
       message: 'Review unliked',
       likeCount: parseInt(likeCount.rows[0].count),
       isLiked: false
@@ -90,11 +90,11 @@ export const getReviewLikes = async (req, res) => {
 
     // Get like count and check if current user liked it
     const result = await pool.query(
-      `SELECT 
+      `SELECT
          COUNT(*) as like_count,
-         BOOL_OR(rl.user_id = $2) as is_liked
-       FROM review_likes rl
-       WHERE rl.review_id = $1`,
+         BOOL_OR(l.user_id = $2) as is_liked
+       FROM likes l
+       WHERE l.review_id = $1`,
       [reviewId, viewerId]
     );
 
