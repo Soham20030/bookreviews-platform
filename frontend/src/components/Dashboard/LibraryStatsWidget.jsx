@@ -253,7 +253,7 @@ const LibraryStatsWidget = () => {
             {recentActivity.map((book, index) => (
               <Link
                 key={book.id}
-                to={`/books/${book.id}`}
+                to={`/books/${book.book_id}`} 
                 style={{
                   display: 'flex',
                   alignItems: 'center',
